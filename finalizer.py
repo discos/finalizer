@@ -10,7 +10,6 @@ import shutil
 import time
 import sys
 import getopt
-
 import ConfigParser
 
 ##### funcz #####
@@ -57,6 +56,7 @@ def job_file_read(job):
                 else:
                     report(2, 'job ' + job + ': item ' + filename + ' missing')
                     job_failed(job)
+                    os.unlink(tarfile)                        
                     return
             else:
                 report(3, 'job ' + job + ': scan ' + filename + ' already appended')
