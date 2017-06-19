@@ -10,9 +10,9 @@ dependencies:
 
 # USAGE
 
-finalizer.py -c <config file>
+finalizer.py -c *config file*
 
-File <config file> should contain the following variables:
+File *config file* should contain the following variables:
 
 * job_files_incoming_folder = *folder containing jobsfiles to be executed*
 * job_files_done_folder = *folder where jobfiles are moved after completion*
@@ -20,13 +20,13 @@ File <config file> should contain the following variables:
 * job_status_folder = *folder used to store the jobs state*
 * lock_file = *lock file path*
 * pid_file = *pid file path*
-* debug_level = *debug level (1: errori non gestiti, 2: errori gestiti, 3: info)*
+* debug_level = *debug level (1: critical errors, 2: non-critical errors, 3: debug info)*
 
 
 # HOW IT WORKS
 
-* reads the configuration file
-* check if there are others running instances
+* read the configuration file
+* check if there are other running instances
 * check for files named *<schedule_name>.rep* inside folder *job_files_incoming_folder* contaning the following lines:
   * path log
   * path scan1
