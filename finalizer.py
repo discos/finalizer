@@ -29,7 +29,6 @@ def job_file_read(job):
     filepath = get_jobfile(job)    
     report(3, 'job ' + job + ': reading ' + filepath)
     with open(filepath) as f:
-        # schedule_name = os.path.basename(f.readline().rstrip())
         schedule_name = os.path.splitext(os.path.basename(filepath))[0]
         tarfile = os.path.join(config.get('finalizer', 'tar_folder'),schedule_name + '.tar')
         
@@ -52,13 +51,13 @@ def job_file_read(job):
             if(scan_number > old_status):
                 if os.path.exists(filename):
                     report(3, 'job ' + job + ': appending ' + filename + ' in ' + tarfile)
+                    append_file(tarfile, filename)
+                    report(3, 'job ' + job + ': saving status ' + str(scan_number))
+                    save_status(job, scan_number)
                 else:
                     report(1, 'job ' + job + ': ' + filename + ' missing')
-                                        
-                append_file(tarfile, filename)
-                
-                report(3, 'job ' + job + ': saving status ' + str(scan_number))
-                save_status(job, scan_number)
+                    job_failed(job)
+                    return
             else:
                 report(3, 'job ' + job + ': scan ' + filename + ' already appended')
             scan_number += 1
@@ -68,11 +67,17 @@ def get_jobfile(job):
     return os.path.join(config.get('finalizer', 'job_files_incoming_folder'), job)
 
 def job_done(job):
-    report(3, 'job ' + job + ': removing job file ' + job)
+    report(3, 'job ' + job + ': job finished, moving job file ' + job + ' to ' + config.get('finalizer', 'job_files_done_folder'))
     shutil.move(get_jobfile(job), config.get('finalizer', 'job_files_done_folder'))
     report(3, 'job ' + job + ': removing status for job '+ job)
     os.remove(get_statusfile(job))
     
+def job_failed(job):
+    report(3, 'job ' + job + ': job failed, moving job file ' + job + ' to ' + config.get('finalizer', 'job_files_failed_folder'))
+    shutil.move(get_jobfile(job), config.get('finalizer', 'job_files_failed_folder'))
+    report(3, 'job ' + job + ': removing status for job '+ job)
+    os.remove(get_statusfile(job))
+                                            
 def job_check_folder(folder):
     report(3, 'check for jobs in folder ' + folder)
     try:
