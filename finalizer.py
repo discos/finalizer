@@ -55,7 +55,7 @@ def job_file_read(job):
                     report(3, 'job ' + job + ': saving status ' + str(scan_number))
                     save_status(job, scan_number)
                 else:
-                    report(1, 'job ' + job + ': ' + filename + ' missing')
+                    report(2, 'job ' + job + ': item ' + filename + ' missing')
                     job_failed(job)
                     return
             else:
@@ -69,15 +69,13 @@ def get_jobfile(job):
 def job_done(job):
     report(3, 'job ' + job + ': job finished, moving job file ' + job + ' to ' + config.get('finalizer', 'job_files_done_folder'))
     shutil.move(get_jobfile(job), config.get('finalizer', 'job_files_done_folder'))
-    report(3, 'job ' + job + ': removing status for job '+ job)
-    os.remove(get_statusfile(job))
+    remove_statusfile(job);
     
 def job_failed(job):
     report(3, 'job ' + job + ': job failed, moving job file ' + job + ' to ' + config.get('finalizer', 'job_files_failed_folder'))
     shutil.move(get_jobfile(job), config.get('finalizer', 'job_files_failed_folder'))
-    report(3, 'job ' + job + ': removing status for job '+ job)
-    os.remove(get_statusfile(job))
-                                            
+    remove_statusfile(job);
+    
 def job_check_folder(folder):
     report(3, 'check for jobs in folder ' + folder)
     try:
@@ -93,6 +91,13 @@ def job_check_folder(folder):
 def get_statusfile(job):
     return os.path.join(config.get('finalizer', 'job_status_folder'), job + '.status')
 
+def remove_statusfile(job):
+    if os.path.exists(get_statusfile(job)):
+        report(3, 'job ' + job + ': removing status for job '+ job)
+        os.remove(get_statusfile(job))
+    else:
+        report(3, 'job ' + job + ': no status for job '+ job +' to remove')
+    
 def save_status(job, status):
     out_file = open(get_statusfile(job),"w")
     out_file.write(str(status))
