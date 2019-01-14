@@ -28,9 +28,10 @@ File *config file* should contain the following variables:
 * read the configuration file
 * check if there are other running instances
 * check for files named *<schedule_name>.rep* inside folder *job_files_incoming_folder* contaning the following lines:
-  * path log
-  * path scan1
-  * path scan(n)
-* for each file, produce inside *tar_folder* a file named *<schedule_name>.tar* containing the specified files
+  * log
+  * scan1
+  * ...
+  * scanN
+* for each scanN line, produce inside *tar_folder* a file named *<scanN>.tar* containing the files contained in scanN
 * if a file *lock_file* is present, any operation will be interrupted, the current state is saved and the program exit.
 * if the file is correctly produced, the jobfile is moved to *job_files_done_folder*.
