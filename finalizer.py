@@ -37,9 +37,11 @@ def job_file_read(job):
         report(3, 'job ' + job + ': got saved status '+ str(old_status))
 
 	schedule_tarfile =  schedule_name + '.tar'
+
 	#add schedule
 	schedule_path = schedule_lines.readline()
 	append_file(schedule_tarfile, schedule_path)
+
 	#add log
 	log_path = schedule_lines.readline()
 	append_file(schedule_tarfile, log_path)
@@ -62,8 +64,6 @@ def job_file_read(job):
 			if(system_is_busy()): 
 	                	report(2, 'system busy. exiting')
 				sys.exit(0)
-			if schedule_file.endswith((".log")):
-		                continue
 			if(subscan_number > old_status):
 		    		print(subscan_file)
                         	report(3, 'job ' + job + ': appending ' + scan_dirname + '/' + subscan_file + ' in ' + tarfile)
