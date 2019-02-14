@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# bedo @ ira - v0.3 - 2017
+# bedo @ ira - v0.5 - 2019
 
 # from __future__ import with_statement
 
@@ -36,8 +36,13 @@ def job_file_read(job):
         old_status = read_status(job)
         report(3, 'job ' + job + ': got saved status '+ str(old_status))
 
-	# skip first line
-	first_line = schedule_lines.readline()
+	schedule_tarfile =  schedule_name + '.tar'
+	#add schedule
+	schedule_path = schedule_lines.readline()
+	append_file(schedule_tarfile, schedule_path)
+	#add log
+	log_path = schedule_lines.readline()
+	append_file(schedule_tarfile, log_path)
 
         for schedule_line in schedule_lines:
             if(system_is_busy()): 
@@ -54,6 +59,11 @@ def job_file_read(job):
             	tarfile = os.path.join(config.get('finalizer', 'tar_folder'), scan_name + '.tar')
 		subscan_files = os.listdir(scan_dirname)
 		for subscan_file in subscan_files:
+			if(system_is_busy()): 
+	                	report(2, 'system busy. exiting')
+				sys.exit(0)
+			if schedule_file.endswith((".log")):
+		                continue
 			if(subscan_number > old_status):
 		    		print(subscan_file)
                         	report(3, 'job ' + job + ': appending ' + scan_dirname + '/' + subscan_file + ' in ' + tarfile)

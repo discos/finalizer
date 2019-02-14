@@ -1,4 +1,4 @@
-finalizer.py - v0.3 - INAF/IRA
+finalizer.py - v0.5 - IRA - INAF
 
 
 # INSTALLATION
