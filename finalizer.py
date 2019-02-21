@@ -11,6 +11,7 @@ import time
 import sys
 import getopt
 import ConfigParser
+import re
 
 ##### funcz #####
 
@@ -36,14 +37,17 @@ def job_file_read(job):
         old_status = read_status(job)
         report(3, 'job ' + job + ': got saved status '+ str(old_status))
 
-	schedule_tarfile =  schedule_name + '.tar'
+	schedule_tarfile = os.path.join(config.get('finalizer', 'schedule_tar_folder'), schedule_name + '.tar')
+	report(3, 'job ' + job + ': schedule_tarfile ' + schedule_tarfile)
 
 	#add schedule
-	schedule_path = schedule_lines.readline()
+	schedule_path = schedule_lines.readline().rstrip()
+	report(3, 'job ' + job + ': appending schedule_path ' + schedule_path + ' in ' + schedule_tarfile)
 	append_file(schedule_tarfile, schedule_path)
 
 	#add log
-	log_path = schedule_lines.readline()
+	log_path = schedule_lines.readline().rstrip()
+	report(3, 'job ' + job + ': appending log_path ' + log_path + ' in ' + schedule_tarfile)
 	append_file(schedule_tarfile, log_path)
 
         for schedule_line in schedule_lines:
@@ -52,13 +56,16 @@ def job_file_read(job):
                 sys.exit(0)
 	    if schedule_line.startswith((";", "#")):
 		continue
+            if not is_parent(os.path.basename(schedule_line)):
+		report(2, os.path.basename(schedule_line) + ' parent dir workaround, continue')
+                continue
 
             report(3,'job ' + job + ': processing item ' + str(subscan_number))
 
             scan_dirname = schedule_line.rstrip()
 	    scan_name = os.path.basename(scan_dirname);
             if os.path.exists(scan_dirname):
-            	tarfile = os.path.join(config.get('finalizer', 'tar_folder'), scan_name + '.tar')
+            	scan_tarfile = os.path.join(config.get('finalizer', 'tar_folder'), scan_name + '.tar')
 		subscan_files = os.listdir(scan_dirname)
 		for subscan_file in subscan_files:
 			if(system_is_busy()): 
@@ -66,12 +73,12 @@ def job_file_read(job):
 				sys.exit(0)
 			if(subscan_number > old_status):
 		    		print(subscan_file)
-                        	report(3, 'job ' + job + ': appending ' + scan_dirname + '/' + subscan_file + ' in ' + tarfile)
-                        	append_file(tarfile, scan_dirname + '/' + subscan_file)
+                        	report(3, 'job ' + job + ': appending ' + scan_dirname + '/' + subscan_file + ' in ' + scan_tarfile)
+                        	append_file(scan_tarfile, scan_dirname + '/' + subscan_file)
                         	report(3, 'job ' + job + ': saving status ' + str(subscan_number))
                     		save_status(job, subscan_number)
 			else:
-                		report(3, 'job ' + job + ': subscan ' + subscan_file + ' already appended in ' + tarfile)
+                		report(3, 'job ' + job + ': subscan ' + subscan_file + ' already appended in ' + scan_tarfile)
             		subscan_number += 1
 	    else:
             	report(2, 'job ' + job + ': item ' + scan_dirname + ' missing')
@@ -102,6 +109,9 @@ def job_check_folder(folder):
     except OSError, msg:
         report(1, 'error: ' + str(msg))
 
+def is_parent(path):
+    return re.match('^\d{8}\-\d{6}', path)
+	
 ### status ###
 
 def get_statusfile(job):
