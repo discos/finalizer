@@ -39,6 +39,10 @@ def job_file_read(job):
 
 	schedule_tarfile = os.path.join(config.get('finalizer', 'schedule_tar_folder'), schedule_name + '.tar')
 	report(3, 'job ' + job + ': schedule_tarfile ' + schedule_tarfile)
+	
+	if(system_is_busy()):
+                report(2, 'system busy during job_file_read. exiting')
+                sys.exit(0)
 
 	#add schedule
 	schedule_path = schedule_lines.readline().rstrip()
@@ -69,7 +73,7 @@ def job_file_read(job):
 		subscan_files = os.listdir(scan_dirname)
 		for subscan_file in subscan_files:
 			if(system_is_busy()): 
-	                	report(2, 'system busy. exiting')
+	                	report(2, 'system busy during scan append. exiting')
 				sys.exit(0)
 			if(subscan_number > old_status):
 		    		print(subscan_file)
